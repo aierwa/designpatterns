@@ -35,6 +35,7 @@ public class Aggregator {
             count ++;
         }
 
+        // todo >> Refactoring >> stat item should be extracted into a private individual function, for future extensions.
         if (count != 0) {
             avgRespTime = sumRespTime * 1.0 / count;
         }

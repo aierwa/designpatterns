@@ -44,7 +44,36 @@ prototype：一个最小原型的实现（有助于理解整个系统的设计�
     - output()
 
 
-version_1：
+# version_1
+
+- MetricsCollector 负责采集
+- MetricsStorage 负责存和取数据
+- Aggregator 负责聚合统计（工具类）
+- ConsoleReporter 和 EmailReporter 相当于是个上帝类（God Class），组合各种功能（定时 取数据 + 聚合统计 + 输出）
+
 作者的实现是 统计逻辑直接写在 Aggregator 中。好不好维护呢？
-重构：report 提取 BaseReporter
+自己想的重构：report 提取 BaseReporter
+
+
+# version_2
+
+着重看一下 Aggregator ConsoleReporter EmailReporter
+- Aggregator:
+    - 把统计项的函数进行封装（方便添加新函数功能）
+    - 支持 api 为 key 的 map 型数据，丰富功能
+    - 从只提供静态函数的工具类 转换为 普通类，提高可测试性
+- ConsoleReporter EmailReporter
+    - 将显示逻辑独立出来，StatView 类，方便修改维护
+    - 形成了 存储 + 统计 + 显示 三类各司其职的结果，结构更清晰
+    - Reporter 类只负责组装流程，然后提供定时触发功能
+
+
+
+
+
+
+
+
+
+
 

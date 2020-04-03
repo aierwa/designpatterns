@@ -25,11 +25,14 @@ public class BaseReporter {
         // 取数据
         long startTime = endTime - durationSeconds * 1000;
         Map<String, List<ApiInfo>> apiInfos = metricsStorage.getApiInfos(startTime, endTime);
+
+        // todo >> Could Refactoring >> This code can sink into Aggregation Class
         for (Map.Entry<String, List<ApiInfo>> entry : apiInfos.entrySet()) {
             String api = entry.getKey();
             List<ApiInfo> apiInfoList = entry.getValue();
             statMap.put(api, Aggregator.aggregate(apiInfoList, durationSeconds * 1000));
         }
+
         return statMap;
     }
 }
