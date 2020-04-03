@@ -67,7 +67,11 @@ prototype：一个最小原型的实现（有助于理解整个系统的设计�
     - 形成了 存储 + 统计 + 显示 三类各司其职的结果，结构更清晰
     - Reporter 类只负责组装流程，然后提供定时触发功能
 
-
+# version_3
+- 解决 ConsoleReporter EmailReporter 代码重复问题
+- 性能问题？
+    - collect 时的存储性能：改为异步，引入 guava eventBus
+    - storage.getApiInfos 数据太大问题：分段统计，再聚合（代码要稍微复杂一些）
 
 
 
