@@ -67,6 +67,12 @@ public class BeanDefinition {
         private Class type;
         private Object arg;
 
+        public ConstructArg(boolean isRef, Class type, Object arg) {
+            this.isRef = isRef;
+            this.type = type;
+            this.arg = arg;
+        }
+
         public boolean isRef() {
             return isRef;
         }

@@ -82,7 +82,7 @@ public class BeansFactory {
                     }
                 }
 
-                bean = beanClass.getConstructor(beanClass).newInstance(argObjects);
+                bean = beanClass.getConstructor(argClasses).newInstance(argObjects);
             }
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
