@@ -37,17 +37,18 @@ public class ObserverRegistry {
 
     /**
      * get matched observer actions by class type of event
-     * it matches also if the class type of event is a subclass type. (class.isAssignableFrom())
+     * it matches also if the class type of event is a subclass type.
+     * class1.isAssignableFrom(class2): return true if class2 extends class1
      *
      * @param event event object
-     * @return
+     * @return ObserverAction list
      */
     public List<ObserverAction> getMatchedObserverActions(Object event) {
         List<ObserverAction> matchedActions = new ArrayList<>();
-        Class<?> eventType = event.getClass();
+        Class<?> postedEventType = event.getClass();
 
         for (Map.Entry<Class<?>, CopyOnWriteArraySet<ObserverAction>> entry : registry.entrySet()) {
-            if (eventType.isAssignableFrom(entry.getKey())) {
+            if (entry.getKey().isAssignableFrom(postedEventType)) {
                 matchedActions.addAll(entry.getValue());
             }
         }
