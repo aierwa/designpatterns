@@ -1,6 +1,7 @@
 package iterator;
 
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -26,6 +27,7 @@ public class SnapshotArrayList<E> extends AbstractList<E> {
 
     @Override
     public boolean add(E e) {
+        ensureCapacity();
         elements[totalSize] = e;
         addTimestamps[totalSize] = System.currentTimeMillis();
         delTimestamps[totalSize] = Long.MAX_VALUE;
@@ -38,7 +40,7 @@ public class SnapshotArrayList<E> extends AbstractList<E> {
     public boolean remove(Object o) {
         for (int i = 0; i < totalSize; i++) {
             if (o.equals(elements[i])) {
-                delTimestamps[i] = System.currentTimeMillis();
+                delTimestamps[i] = timestamp();
                 actualSize--;
             }
         }
@@ -63,6 +65,21 @@ public class SnapshotArrayList<E> extends AbstractList<E> {
         return actualSize;
     }
 
+    private void ensureCapacity() {
+        if (totalSize == elements.length) {
+            this.elements = Arrays.copyOf(this.elements, elements.length * 2);
+            this.addTimestamps = Arrays.copyOf(this.addTimestamps, elements.length * 2);
+            this.delTimestamps = Arrays.copyOf(this.delTimestamps, elements.length * 2);
+        }
+    }
+
+    private long timestamp() {
+        long ts = System.currentTimeMillis();
+        while (ts == System.currentTimeMillis()) {
+        }
+        return System.currentTimeMillis();
+    }
+
     public int actualSize() {
         return actualSize;
     }
@@ -85,75 +102,38 @@ public class SnapshotArrayList<E> extends AbstractList<E> {
         return delTimestamps[index];
     }
 
-//
-//    private static class SnapshotIterator<E> implements Iterator<E> {
-//        private long snapshotTimestamp;
-//        // cursor in elements
-//        private int cursorInAll;
-//        // left count of not iterated elements
-//        private int leftCount;
-//        private SnapshotArrayList<E> list;
-//
-//        public SnapshotIterator(SnapshotArrayList<E> list) {
-//            this.list = list;
-//            snapshotTimestamp = System.currentTimeMillis();
-//            cursorInAll = 0;
-//            leftCount = list.actualSize();
-//            justNext();
-//        }
-//
-//        @Override
-//        public boolean hasNext() {
-//            return leftCount >= 0;
-//        }
-//
-//        @Override
-//        public E next() {
-//            E currentItem = this.list.get(cursorInAll);
-//            justNext();
-//            return currentItem;
-//        }
-//
-//
-//        private void justNext(){
-//            while (cursorInAll < list.totalSize()) {
-//                long addTs = list.getAddTimestamp(cursorInAll);
-//                long delTs = list.getDelTimestamp(cursorInAll);
-//                if (snapshotTimestamp > addTs && snapshotTimestamp < delTs) {
-//                    leftCount--;
-//                    break;
-//                }
-//                cursorInAll++;
-//            }
-//        }
-//
-//    }
-
     public class SnapshotIterator<E> implements Iterator<E> {
         private long snapshotTimestamp;
-        private int cursorInAll; // 在整个容器中的下标，而非快照中的下标
-        private int leftCount; // 快照中还有几个元素未被遍历
+        // cursor in source list
+        private int cursorInAll;
+        // left count that did not be iterated
+        private int leftCount;
         private SnapshotArrayList<E> arrayList;
 
         public SnapshotIterator(SnapshotArrayList<E> arrayList) {
-            this.snapshotTimestamp = System.currentTimeMillis();
+            this.snapshotTimestamp = timestamp();
             this.cursorInAll = 0;
-            this.leftCount = arrayList.actualSize() + 1;
+            this.leftCount = arrayList.actualSize();
             this.arrayList = arrayList;
 
-            justNext(); // 先跳到这个迭代器快照的第一个元素
+            // jump to the first existed element
+            justNext();
         }
 
         @Override
         public boolean hasNext() {
-            return this.leftCount > 0; // 注意是>=, 而非>
+            return this.leftCount > 0;
         }
 
         @Override
         public E next() {
             E currentItem = arrayList.get(cursorInAll);
+            // move cursor 1 step
             cursorInAll++;
+            // move cursor to next existed element
             justNext();
+            // decrease left count 1 if when call next()
+            leftCount--;
             return currentItem;
         }
 
@@ -162,7 +142,6 @@ public class SnapshotArrayList<E> extends AbstractList<E> {
                 long addTimestamp = arrayList.getAddTimestamp(cursorInAll);
                 long delTimestamp = arrayList.getDelTimestamp(cursorInAll);
                 if (snapshotTimestamp > addTimestamp && snapshotTimestamp < delTimestamp) {
-                    leftCount--;
                     break;
                 }
                 cursorInAll++;

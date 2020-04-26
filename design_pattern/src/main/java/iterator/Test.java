@@ -1,5 +1,6 @@
 package iterator;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -9,11 +10,13 @@ public class Test {
     public static void main(String[] args) {
         SnapshotArrayList<Integer> snapshotArrayList = new SnapshotArrayList<>();
 
-        snapshotArrayList.add(1);
-        snapshotArrayList.add(2);
-        snapshotArrayList.add(3);
+        for (int i = 0; i < 15; i++) {
+            snapshotArrayList.add(i);
+        }
+        snapshotArrayList.remove(new Integer(10));
 
         Iterator<Integer> iterator = snapshotArrayList.iterator();
+        snapshotArrayList.remove(new Integer(1));
         while (iterator.hasNext()) {
             System.out.println(iterator.next());
         }
