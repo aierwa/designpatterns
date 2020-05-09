@@ -14,6 +14,11 @@
             <version>28.2-jre</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>3.1</version>
+        </dependency>
     </dependencies>
 
 
